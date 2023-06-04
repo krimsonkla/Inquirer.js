@@ -34,9 +34,14 @@ type Config<Value> = {
 };
 
 function isSelectableChoice<T>(
-  choice: undefined | Separator | Choice<T>
+  choice: undefined | Separator | Choice<T>,
+  includeDisabled: boolean = false
 ): choice is Choice<T> {
-  return choice != null && !Separator.isSeparator(choice) && !choice.disabled;
+  return (
+    choice != null &&
+    !Separator.isSeparator(choice) &&
+    (includeDisabled || !choice.disabled)
+  );
 }
 
 export default createPrompt(
@@ -60,7 +65,7 @@ export default createPrompt(
         setStatus('done');
         done(
           choices
-            .filter((choice) => isSelectableChoice(choice) && choice.checked)
+            .filter((choice) => isSelectableChoice(choice, true) && choice.checked)
             .map((choice) => (choice as Choice<Value>).value)
         );
       } else if (isUpKey(key) || isDownKey(key)) {
